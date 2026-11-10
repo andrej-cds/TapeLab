@@ -21,4 +21,4 @@ The source code of CDS TapeLab is licensed under the **GNU Affero General Public
 | .NET runtime and libraries (Microsoft) | all | MIT |
 | [Inno Setup](https://jrsoftware.org/isinfo.php) (builds the installer only; nothing is distributed from it) | Windows 10/11 installer | Inno Setup License |
 
-Planned macOS edition: [Avalonia](https://avaloniaui.net) (MIT).
+macOS edition (alpha): [Avalonia](https://avaloniaui.net) (MIT).

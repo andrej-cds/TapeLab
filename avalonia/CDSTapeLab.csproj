@@ -1,0 +1,35 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- CDS TapeLab za macOS (in kasneje Linux): Avalonia + PortAudio (CoreAudio / ALSA).
+       Jedro meritev (Core) je skupno z izdajo za Windows in se povezuje iz ..\windows\CDSMeasure\Core. -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <AssemblyName>CDSTapeLab</AssemblyName>
+    <RootNamespace>CDSMeasure</RootNamespace>
+    <Product>CDS TapeLab</Product>
+    <Version>0.7.0</Version>
+    <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Avalonia" Version="11.3.12" />
+    <PackageReference Include="Avalonia.Desktop" Version="11.3.12" />
+    <PackageReference Include="Avalonia.Themes.Fluent" Version="11.3.12" />
+    <PackageReference Include="PortAudioSharp2" Version="1.0.6" />
+  </ItemGroup>
+
+  <!-- skupno jedro (brez WPF in NAudio) -->
+  <ItemGroup>
+    <Compile Include="..\windows\CDSMeasure\Core\Loc.cs" Link="Core\Loc.cs" />
+    <Compile Include="..\windows\CDSMeasure\Core\AppSettings.cs" Link="Core\AppSettings.cs" />
+    <Compile Include="..\windows\CDSMeasure\Core\VoltCore.cs" Link="Core\VoltCore.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <AvaloniaResource Include="Assets\**" />
+  </ItemGroup>
+
+</Project>

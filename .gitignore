@@ -21,3 +21,9 @@ zgradi_log.txt
 Thumbs.db
 .DS_Store
 .idea/
+
+# macOS build
+avalonia/bin/
+avalonia/obj/
+avalonia/publish/
+avalonia/dist/

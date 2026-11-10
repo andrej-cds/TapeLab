@@ -1,0 +1,29 @@
+CDS TapeLab for macOS / CDS TapeLab za macOS
+=============================================
+
+INSTALL / NAMESTITEV
+1. Drag "CDS TapeLab" onto "Applications". / Povleci "CDS TapeLab" v mapo "Applications".
+
+FIRST START / PRVI ZAGON
+The app is not signed with a paid Apple Developer certificate, so macOS asks for confirmation once.
+Aplikacija ni podpisana s plačljivim Applovim certifikatom, zato macOS enkrat zahteva potrditev.
+
+  macOS 12 - 14 (Monterey, Ventura, Sonoma):
+    Right-click (or Control-click) "CDS TapeLab" -> Open -> Open.
+    Desni klik na "CDS TapeLab" -> Odpri -> Odpri.
+
+  macOS 15 and newer (Sequoia ...) / macOS 15 in novejši:
+    Open the app once (it will be blocked), then go to
+    System Settings -> Privacy & Security -> scroll down -> "Open Anyway".
+    Enkrat odpri aplikacijo (blokirana bo), nato
+    Sistemske nastavitve -> Zasebnost in varnost -> pomakni se navzdol -> "Vseeno odpri".
+
+  If macOS says the app is "damaged" (it is not), run once in Terminal:
+  Če macOS pravi, da je aplikacija "poškodovana" (ni), enkrat zaženi v Terminalu:
+    xattr -dr com.apple.quarantine "/Applications/CDS TapeLab.app"
+
+MICROPHONE / MIKROFON
+macOS asks permission to use the audio input. Choose "Allow". Without it the levels stay at zero.
+macOS vpraša za dovoljenje za zvočni vhod. Izberi "Dovoli". Brez tega ostanejo ravni na nič.
+
+Source code and help / Izvorna koda in pomoč: https://github.com/andrej-cds/TapeLab
