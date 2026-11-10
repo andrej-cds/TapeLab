@@ -45,9 +45,9 @@ public sealed class StartView : UserControl, IDisposable
                 Data = Geometry.Parse(t.Icon), Stroke = Ui.Gold, StrokeThickness = 3.5, Width = 96, Height = 48,
                 Stretch = Stretch.Uniform, HorizontalAlignment = HorizontalAlignment.Left, Margin = new Thickness(0, 4, 0, 26),
             });
-            t.Title.FontFamily = Ui.Head; t.Title.FontSize = 26; t.Title.Foreground = Ui.Text; t.Title.TextWrapping = TextWrapping.Wrap;
+            t.Title.FontFamily = Ui.Head; t.Title.FontSize = 19; t.Title.Foreground = Ui.Text; t.Title.TextWrapping = TextWrapping.Wrap;
             t.Desc.FontSize = 14; t.Desc.Foreground = Ui.Dim; t.Desc.TextWrapping = TextWrapping.Wrap; t.Desc.Margin = new Thickness(0, 10, 0, 0);
-            t.Soon.FontSize = 12; t.Soon.Foreground = Ui.Gold; t.Soon.Margin = new Thickness(0, 14, 0, 0);
+            t.Soon.FontSize = 12; t.Soon.TextWrapping = TextWrapping.Wrap; t.Soon.Foreground = Ui.Gold; t.Soon.Margin = new Thickness(0, 14, 0, 0);
             stack.Children.Add(t.Title); stack.Children.Add(t.Desc);
             if (!t.Ready) stack.Children.Add(t.Soon);
 
@@ -92,7 +92,8 @@ public sealed class StartView : UserControl, IDisposable
         {
             t.Title.Text = Loc.T(t.TitleKey);
             t.Desc.Text = Loc.T(t.DescKey);
-            t.Soon.Text = Ui.Tt("Kmalu v različici za Mac", "Coming soon in the Mac version");
+            t.Soon.Text = Ui.Tt(OperatingSystem.IsMacOS() ? "Kmalu v različici za Mac" : "Kmalu v različici za Linux",
+                                OperatingSystem.IsMacOS() ? "Coming soon in the Mac version" : "Coming soon in the Linux version");
         }
         _cardL.Text = Loc.T("card");
         _cardV.Text = PaEngine.CardText();
