@@ -2,10 +2,11 @@ name: Build
 
 # - ob vsakem pushu in pull requestu: preveri, da se vse zgradi
 # - ob oznaki v*  (npr. v0.6.0): zgradi namestitve in objavi GitHub Release
+# - ob pushu na vejo »release«: isto, oznaka v<VERSION> se ustvari sama (verzija iz datoteke VERSION)
 # - ročno: Actions -> Build -> Run workflow
 on:
   push:
-    branches: [main]
+    branches: [main, release]
     tags: ["v*"]
   pull_request:
   workflow_dispatch:
@@ -29,6 +30,8 @@ jobs:
         run: |
           if ($env:GITHUB_REF -like 'refs/tags/v*') {
             $v = $env:GITHUB_REF_NAME.Substring(1)
+          } elseif ($env:GITHUB_REF -eq 'refs/heads/release') {
+            $v = (Get-Content VERSION).Trim()
           } else {
             $v = ([xml](Get-Content windows/CDSMeasure/CDSMeasure.csproj)).Project.PropertyGroup.Version | Where-Object { $_ } | Select-Object -First 1
           }
@@ -77,6 +80,8 @@ jobs:
         run: |
           if ($env:GITHUB_REF -like 'refs/tags/v*') {
             $v = $env:GITHUB_REF_NAME.Substring(1)
+          } elseif ($env:GITHUB_REF -eq 'refs/heads/release') {
+            $v = (Get-Content VERSION).Trim()
           } else {
             $v = ([xml](Get-Content windows-xp/CDSMeasure/CDSMeasure.csproj)).Project.PropertyGroup.Version | Where-Object { $_ } | Select-Object -First 1
           }
@@ -126,6 +131,8 @@ jobs:
         run: |
           if [[ "$GITHUB_REF" == refs/tags/v* ]]; then
             V="${GITHUB_REF_NAME#v}"
+          elif [[ "$GITHUB_REF" == refs/heads/release ]]; then
+            V="$(tr -d '[:space:]' < VERSION)"
           else
             V="$(sed -n 's:.*<Version>\(.*\)</Version>.*:\1:p' avalonia/CDSTapeLab.csproj | head -1)"
           fi
@@ -166,6 +173,8 @@ jobs:
         run: |
           if [[ "$GITHUB_REF" == refs/tags/v* ]]; then
             V="${GITHUB_REF_NAME#v}"
+          elif [[ "$GITHUB_REF" == refs/heads/release ]]; then
+            V="$(tr -d '[:space:]' < VERSION)"
           else
             V="$(sed -n 's:.*<Version>\(.*\)</Version>.*:\1:p' avalonia/CDSTapeLab.csproj | head -1)"
           fi
@@ -184,12 +193,21 @@ jobs:
 
   release:
     name: Publish GitHub Release
-    if: startsWith(github.ref, 'refs/tags/v')
+    if: startsWith(github.ref, 'refs/tags/v') || github.ref == 'refs/heads/release'
     needs: [windows, windows-xp, macos, linux]
     runs-on: ubuntu-latest
     permissions:
       contents: write
     steps:
+      - uses: actions/checkout@v4
+
+      - name: Tag
+        id: t
+        run: |
+          if [[ "$GITHUB_REF" == refs/tags/v* ]]; then T="$GITHUB_REF_NAME"; else T="v$(tr -d '[:space:]' < VERSION)"; fi
+          echo "tag=$T" >> "$GITHUB_OUTPUT"
+          echo "Tag: $T"
+
       - uses: actions/download-artifact@v4
         with:
           path: dist
@@ -200,6 +218,8 @@ jobs:
 
       - uses: softprops/action-gh-release@v2
         with:
+          tag_name: ${{ steps.t.outputs.tag }}
+          target_commitish: ${{ github.sha }}
           files: dist/*
           generate_release_notes: true
           fail_on_unmatched_files: true
