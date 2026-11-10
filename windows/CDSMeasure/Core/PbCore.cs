@@ -306,6 +306,7 @@ public sealed class PbRecorder : IDisposable
     public void Dispose() { try { Stop(); } catch { } }
 }
 
+#if !AVALONIA
 /// <summary>Analiza posnetka (WAV, FLAC, MP3 …) z istim jedrom kot zajem v živo.</summary>
 public static class PbFile
 {
@@ -321,3 +322,4 @@ public static class PbFile
         return core;
     }
 }
+#endif
