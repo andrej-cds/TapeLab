@@ -1,0 +1,76 @@
+﻿<UserControl x:Class="CDSMeasure.Views.StartView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Grid Margin="40,34">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <UniformGrid Grid.Row="0" Rows="1" Columns="5" VerticalAlignment="Center" Height="330">
+            <Button Style="{StaticResource CdsTile}" Tag="wfs" Click="Tile_Click" Margin="0,0,8,0">
+                <StackPanel>
+                    <Path Data="M0,20 C8,-6 22,-6 30,20 S52,46 60,20 S82,-6 90,20" Stroke="{StaticResource GoldBrush}"
+                          StrokeThickness="3.5" Width="96" Height="48" Stretch="Uniform" HorizontalAlignment="Left" Margin="0,4,0,26" />
+                    <TextBlock x:Name="WfsT" FontFamily="{StaticResource FontHead}" FontSize="26" Foreground="{StaticResource TextBrush}" TextWrapping="Wrap" />
+                    <TextBlock x:Name="WfsD" FontSize="14" Foreground="{StaticResource DimBrush}" TextWrapping="Wrap" Margin="0,10,0,0" />
+                </StackPanel>
+            </Button>
+            <Button Style="{StaticResource CdsTile}" Tag="pb" Click="Tile_Click" Margin="8,0,8,0">
+                <StackPanel>
+                    <Path Data="M0,38 L10,36 L20,16 L34,12 L60,12 L80,14 L92,24 L100,46" Stroke="{StaticResource GoldBrush}"
+                          StrokeThickness="3.5" Width="96" Height="48" Stretch="Uniform" HorizontalAlignment="Left" Margin="0,4,0,26" StrokeLineJoin="Round" />
+                    <TextBlock x:Name="PbT" FontFamily="{StaticResource FontHead}" FontSize="26" Foreground="{StaticResource TextBrush}" TextWrapping="Wrap" />
+                    <TextBlock x:Name="PbD" FontSize="14" Foreground="{StaticResource DimBrush}" TextWrapping="Wrap" Margin="0,10,0,0" />
+                </StackPanel>
+            </Button>
+            <Button Style="{StaticResource CdsTile}" Tag="rec" Click="Tile_Click" Margin="8,0,8,0">
+                <StackPanel>
+                    <Path Data="M0,40 L10,38 L20,20 L34,14 L60,14 L80,12 L92,20 L100,40" Stroke="{StaticResource GoldBrush}"
+                          StrokeThickness="3.5" Width="96" Height="48" Stretch="Uniform" HorizontalAlignment="Left" Margin="0,4,0,26" StrokeLineJoin="Round" />
+                    <TextBlock x:Name="RecT" FontFamily="{StaticResource FontHead}" FontSize="26" Foreground="{StaticResource TextBrush}" TextWrapping="Wrap" />
+                    <TextBlock x:Name="RecD" FontSize="14" Foreground="{StaticResource DimBrush}" TextWrapping="Wrap" Margin="0,10,0,0" />
+                </StackPanel>
+            </Button>
+            <Button Style="{StaticResource CdsTile}" Tag="az" Click="Tile_Click" Margin="8,0,8,0">
+                <StackPanel>
+                    <Path Data="M0,30 L100,30 M8,44 L92,16" Stroke="{StaticResource GoldBrush}"
+                          StrokeThickness="3.5" Width="96" Height="48" Stretch="Uniform" HorizontalAlignment="Left" Margin="0,4,0,26" />
+                    <TextBlock x:Name="AzT" FontFamily="{StaticResource FontHead}" FontSize="26" Foreground="{StaticResource TextBrush}" TextWrapping="Wrap" />
+                    <TextBlock x:Name="AzD" FontSize="14" Foreground="{StaticResource DimBrush}" TextWrapping="Wrap" Margin="0,10,0,0" />
+                </StackPanel>
+            </Button>
+            <Button Style="{StaticResource CdsTile}" Tag="volt" Click="Tile_Click" Margin="8,0,0,0">
+                <StackPanel>
+                    <Path Data="M0,36 L100,36 M0,36 L0,24 M25,36 L25,28 M50,36 L50,24 M75,36 L75,28 M100,36 L100,24 M34,6 L52,36" Stroke="{StaticResource GoldBrush}"
+                          StrokeThickness="3.5" Width="96" Height="48" Stretch="Uniform" HorizontalAlignment="Left" Margin="0,4,0,26" />
+                    <TextBlock x:Name="VoltT" FontFamily="{StaticResource FontHead}" FontSize="26" Foreground="{StaticResource TextBrush}" TextWrapping="Wrap" />
+                    <TextBlock x:Name="VoltD" FontSize="14" Foreground="{StaticResource DimBrush}" TextWrapping="Wrap" Margin="0,10,0,0" />
+                </StackPanel>
+            </Button>
+        </UniformGrid>
+
+        <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,18">
+            <Button x:Name="ReportBtn" Style="{StaticResource CdsPrimary}" MinWidth="200" Padding="18,9" Click="Report_Click" />
+            <TextBlock x:Name="ReportInfo" FontSize="12" Foreground="{StaticResource DimBrush}" VerticalAlignment="Center" Margin="16,0,0,0" />
+        </StackPanel>
+
+        <Border Grid.Row="2" Style="{StaticResource CdsPanel}" Margin="0">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock x:Name="CardL" Style="{StaticResource DimLabel}" Margin="0,0,8,0" />
+                    <TextBlock x:Name="CardV" FontFamily="{StaticResource FontMono}" FontSize="13" Foreground="{StaticResource TextBrush}" VerticalAlignment="Center" />
+                </StackPanel>
+                <StackPanel Grid.Column="1" Orientation="Horizontal">
+                    <TextBlock x:Name="LicL" Style="{StaticResource DimLabel}" Margin="0,0,8,0" />
+                    <TextBlock x:Name="LicV" FontFamily="{StaticResource FontMono}" FontSize="13" Foreground="{StaticResource GoldLightBrush}" VerticalAlignment="Center" />
+                </StackPanel>
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>

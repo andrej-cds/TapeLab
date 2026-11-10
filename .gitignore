@@ -1,0 +1,23 @@
+# .NET
+bin/
+obj/
+*.user
+.vs/
+*.suo
+
+# izdelki gradnje
+Izdaja/
+windows/Izdaja/
+windows-xp/Izdaja/
+*.zip
+*.rar
+*.exe
+*.dmg
+*.AppImage
+*.deb
+zgradi_log.txt
+
+# OS / editor
+Thumbs.db
+.DS_Store
+.idea/

@@ -1,0 +1,127 @@
+name: Build
+
+# - ob vsakem pushu in pull requestu: preveri, da se vse zgradi
+# - ob oznaki v*  (npr. v0.6.0): zgradi namestitve in objavi GitHub Release
+# - ročno: Actions -> Build -> Run workflow
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  windows:
+    name: Windows 10/11 (x64) installer
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Version
+        shell: pwsh
+        run: |
+          if ($env:GITHUB_REF -like 'refs/tags/v*') {
+            $v = $env:GITHUB_REF_NAME.Substring(1)
+          } else {
+            $v = ([xml](Get-Content windows/CDSMeasure/CDSMeasure.csproj)).Project.PropertyGroup.Version | Where-Object { $_ } | Select-Object -First 1
+          }
+          "VERSION=$v" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          "Version: $v"
+
+      - name: Publish (self-contained, single file)
+        working-directory: windows
+        shell: pwsh
+        run: >
+          dotnet publish CDSMeasure/CDSMeasure.csproj -c Release -r win-x64 --self-contained true
+          -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:EnableCompressionInSingleFile=true
+          -p:DebugType=none -p:DebugSymbols=false -p:Version=$env:VERSION
+          -o "Izdaja/CDS TapeLab"
+
+      - name: Install Inno Setup
+        shell: pwsh
+        run: choco install innosetup --no-progress -y
+
+      - name: Build installer
+        working-directory: windows/Namestitev
+        shell: pwsh
+        run: |
+          $iscc = "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe"
+          & $iscc "/DAppVersion=$env:VERSION" CDSTapeLab.iss
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows-installer
+          path: windows/Izdaja/CDSTapeLab-Setup-*.exe
+          if-no-files-found: error
+
+  windows-xp:
+    name: Windows XP (x86, .NET 4.0) package
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Version
+        shell: pwsh
+        run: |
+          if ($env:GITHUB_REF -like 'refs/tags/v*') {
+            $v = $env:GITHUB_REF_NAME.Substring(1)
+          } else {
+            $v = ([xml](Get-Content windows-xp/CDSMeasure/CDSMeasure.csproj)).Project.PropertyGroup.Version | Where-Object { $_ } | Select-Object -First 1
+          }
+          "VERSION=$v" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          "Version: $v"
+
+      - name: Publish
+        working-directory: windows-xp
+        shell: pwsh
+        run: >
+          dotnet publish CDSMeasure/CDSMeasure.csproj -c Release
+          -p:DebugType=none -p:DebugSymbols=false -p:Version=$env:VERSION
+          -o "Izdaja/CDS TapeLab XP"
+
+      - name: Package
+        working-directory: windows-xp
+        shell: pwsh
+        run: |
+          Copy-Item Namestitev/README_XP.txt, Namestitev/README_XP_HU.txt "Izdaja/CDS TapeLab XP/"
+          Compress-Archive -Path "Izdaja/CDS TapeLab XP/*" -DestinationPath "Izdaja/CDSTapeLab-XP-$env:VERSION.zip" -Force
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows-xp
+          path: windows-xp/Izdaja/CDSTapeLab-XP-*.zip
+          if-no-files-found: error
+
+  release:
+    name: Publish GitHub Release
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: [windows, windows-xp]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+
+      - name: List files
+        run: ls -la dist
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*
+          generate_release_notes: true
+          fail_on_unmatched_files: true

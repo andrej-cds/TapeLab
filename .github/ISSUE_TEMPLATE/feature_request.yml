@@ -1,0 +1,14 @@
+name: Idea / Predlog
+description: Suggest a measurement or improvement / Predlagaj meritev ali izboljšavo
+labels: [enhancement]
+body:
+  - type: textarea
+    id: idea
+    attributes:
+      label: What would you like to see? / Kaj bi rad videl?
+      description: Describe the measurement or feature and how you would use it on the bench.
+    validations: { required: true }
+  - type: textarea
+    id: why
+    attributes:
+      label: Why is it useful? / Zakaj je koristno?

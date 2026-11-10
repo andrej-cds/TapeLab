@@ -1,0 +1,248 @@
+<UserControl x:Class="CDSMeasure.Views.WfsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:c="clr-namespace:CDSMeasure.Controls">
+    <UserControl.Resources>
+        <Style x:Key="BarSeg" TargetType="RadioButton" BasedOn="{StaticResource CdsSeg}">
+            <Setter Property="FontSize" Value="12" />
+            <Setter Property="Padding" Value="7,5" />
+        </Style>
+        <Style x:Key="BarBtn" TargetType="Button" BasedOn="{StaticResource CdsButton}">
+            <Setter Property="FontSize" Value="12" />
+            <Setter Property="Padding" Value="8,5" />
+        </Style>
+        <Style x:Key="BarCap" TargetType="TextBlock" BasedOn="{StaticResource DimLabel}">
+            <Setter Property="FontSize" Value="10" />
+            <Setter Property="VerticalAlignment" Value="Bottom" />
+        </Style>
+    </UserControl.Resources>
+    <Grid Margin="16,12,16,8">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />  <!-- ukazna vrstica -->
+            <RowDefinition Height="Auto" />  <!-- 1. hitrost -->
+            <RowDefinition Height="*" />     <!-- 2. hitrost v času -->
+            <RowDefinition Height="Auto" />  <!-- 3. W&F -->
+            <RowDefinition Height="*" />     <!-- 4. spekter -->
+            <RowDefinition Height="Auto" />  <!-- stanje -->
+        </Grid.RowDefinitions>
+
+        <!-- Ukazna vrstica: vse v eni vrstici; Viewbox jo pri ozkem oknu (1024x768) sorazmerno zmanjša -->
+        <StackPanel Grid.Row="0">
+            <Viewbox HorizontalAlignment="Left" Stretch="Uniform" StretchDirection="DownOnly" Margin="0,0,0,6">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />  <!-- napisi skupin -->
+                        <RowDefinition Height="Auto" />  <!-- gumbi -->
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" /> <ColumnDefinition Width="Auto" /> <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" /> <ColumnDefinition Width="Auto" /> <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" /> <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+
+                    <Button x:Name="BtnStart" Grid.Row="1" Grid.Column="0" Style="{StaticResource CdsPrimary}" Click="BtnStart_Click"
+                            MinWidth="88" Padding="10,6" />
+
+                    <StackPanel Grid.Row="0" Grid.RowSpan="2" Grid.Column="1" VerticalAlignment="Center" Margin="12,0,0,0">
+                        <TextBlock x:Name="ElapsedText" FontFamily="{StaticResource FontMono}" FontSize="18" Foreground="{StaticResource TextBrush}" Text="00:00:00" />
+                        <TextBlock x:Name="LevelText" FontFamily="{StaticResource FontMono}" FontSize="10" Foreground="{StaticResource GoldBrush}"
+                                   TextWrapping="Wrap" MaxWidth="100" />
+                    </StackPanel>
+
+                    <TextBlock x:Name="DurLabel" Grid.Row="0" Grid.Column="2" Style="{StaticResource BarCap}" Margin="16,0,0,3" />
+                    <StackPanel Grid.Row="1" Grid.Column="2" Orientation="Horizontal" Margin="14,0,0,0">
+                        <RadioButton Style="{StaticResource BarSeg}" GroupName="dur" Content="15" Tag="15" Checked="Dur_Checked" />
+                        <RadioButton Style="{StaticResource BarSeg}" GroupName="dur" Content="30" Tag="30" Checked="Dur_Checked" />
+                        <RadioButton Style="{StaticResource BarSeg}" GroupName="dur" Content="45" Tag="45" IsChecked="True" Checked="Dur_Checked" />
+                        <RadioButton Style="{StaticResource BarSeg}" GroupName="dur" Content="60" Tag="60" Checked="Dur_Checked" />
+                    </StackPanel>
+
+                    <!-- Live / Report: samostojen sklop skrajno desno, ločen od izvoznih gumbov -->
+                    <StackPanel Grid.Row="1" Grid.Column="8" Orientation="Horizontal" Margin="44,0,0,0">
+                        <RadioButton x:Name="ViewLive" Style="{StaticResource BarSeg}" GroupName="view" Tag="0" IsChecked="True" Checked="View_Checked" />
+                        <RadioButton x:Name="ViewReport" Style="{StaticResource BarSeg}" GroupName="view" Tag="1" Checked="View_Checked" />
+                    </StackPanel>
+
+                    <!-- Izbira mehanizma/modela (neobvezno) -->
+                    <TextBlock x:Name="MechLabel" Grid.Row="0" Grid.Column="4" Style="{StaticResource BarCap}" Margin="16,0,0,3" />
+                    <StackPanel x:Name="MechPanel" Grid.Row="1" Grid.Column="4" Orientation="Horizontal" Margin="14,0,0,0" />
+
+                    <TextBlock x:Name="SrcLabel" Grid.Row="0" Grid.Column="5" Style="{StaticResource BarCap}" Margin="16,0,0,3" />
+                    <StackPanel Grid.Row="1" Grid.Column="5" Orientation="Horizontal" Margin="14,0,0,0">
+                        <RadioButton x:Name="SrcLive" Style="{StaticResource BarSeg}" GroupName="src" Tag="1" Checked="Src_Checked" />
+                        <RadioButton x:Name="SrcDemo" Style="{StaticResource BarSeg}" GroupName="src" Tag="0" IsChecked="True" Checked="Src_Checked" />
+                    </StackPanel>
+
+                    <TextBlock x:Name="ChanLabel" Grid.Row="0" Grid.Column="6" Style="{StaticResource BarCap}" Margin="16,0,0,3" />
+                    <StackPanel Grid.Row="1" Grid.Column="6" Orientation="Horizontal" Margin="14,0,0,0">
+                        <RadioButton x:Name="ChanL" Style="{StaticResource BarSeg}" GroupName="chan" Content="L" Tag="0" IsChecked="True" Checked="Chan_Checked" />
+                        <RadioButton x:Name="ChanR" Style="{StaticResource BarSeg}" GroupName="chan" Content="R" Tag="1" Checked="Chan_Checked" />
+                        <RadioButton x:Name="ChanLR" Style="{StaticResource BarSeg}" GroupName="chan" Content="L+R" Tag="2" Checked="Chan_Checked" />
+                    </StackPanel>
+
+                    <StackPanel Grid.Row="1" Grid.Column="7" Orientation="Horizontal" Margin="14,0,0,0">
+                        <Button x:Name="BtnImport" Style="{StaticResource BarBtn}" Click="BtnImport_Click" Margin="0,0,6,0" />
+                        <Button x:Name="BtnShot" Style="{StaticResource BarBtn}" Click="BtnShot_Click" Margin="0,0,6,0" />
+                        <Button x:Name="BtnCsv" Style="{StaticResource BarBtn}" Click="BtnCsv_Click" />
+                    </StackPanel>
+                </Grid>
+            </Viewbox>
+            <WrapPanel x:Name="ModelPanel" Margin="0,0,0,4" Visibility="Collapsed" />
+            <TextBlock x:Name="EndText" HorizontalAlignment="Center" FontFamily="{StaticResource FontHead}" FontSize="20" Foreground="{StaticResource GoldBrush}" />
+        </StackPanel>
+
+        <!-- 1. SPEED DEVIATION + digitalni prikaz na desni -->
+        <Border x:Name="PanelSpeed" Grid.Row="1" Style="{StaticResource CdsPanel}">
+            <StackPanel>
+                <DockPanel Margin="0,0,0,4">
+                    <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                        <TextBlock x:Name="RefLabel" Style="{StaticResource DimLabel}" />
+                        <RadioButton Style="{StaticResource CdsSeg}" GroupName="ref" Content="3000 Hz" Tag="3000" IsChecked="True" Checked="Ref_Checked" />
+                        <RadioButton Style="{StaticResource CdsSeg}" GroupName="ref" Content="3150 Hz" Tag="3150" Checked="Ref_Checked" />
+                    </StackPanel>
+                    <TextBlock x:Name="SpeedTitle" Style="{StaticResource PanelTitle}" />
+                </DockPanel>
+                <Grid Height="80">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <c:StripMeter x:Name="SpeedMeter" Minimum="-3" Maximum="3" MajorStep="1" MinorPerMajor="10" LabelFormat="+0;-0;0" Caption="%" />
+                    <Border Grid.Column="1" Style="{StaticResource DigitalBox}" Margin="12,0,0,0">
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock x:Name="SpeedHz" Style="{StaticResource DigitalBig}" Text="----  Hz" />
+                            <TextBlock x:Name="SpeedPct" Style="{StaticResource DigitalSmall}" Text="----  %" />
+                        </StackPanel>
+                    </Border>
+                </Grid>
+            </StackPanel>
+        </Border>
+
+        <!-- 2. SPEED DEVIATION IN TIME DOMAIN -->
+        <Border x:Name="PanelTime" Grid.Row="2" Style="{StaticResource CdsPanel}">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+                <DockPanel Margin="0,0,0,4">
+                    <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                        <TextBlock x:Name="WinLabel" Style="{StaticResource DimLabel}" />
+                        <RadioButton Style="{StaticResource CdsSeg}" GroupName="win" Content="1 s" Tag="1" Checked="Win_Checked" />
+                        <RadioButton Style="{StaticResource CdsSeg}" GroupName="win" Content="10 s" Tag="10" IsChecked="True" Checked="Win_Checked" />
+                        <RadioButton Style="{StaticResource CdsSeg}" GroupName="win" Content="60 s" Tag="60" Checked="Win_Checked" />
+                        <RadioButton x:Name="WinAll" Style="{StaticResource CdsSeg}" GroupName="win" Tag="0" Checked="Win_Checked" />
+                    </StackPanel>
+                    <TextBlock x:Name="PeriodText" DockPanel.Dock="Right" Margin="0,0,24,0" VerticalAlignment="Center"
+                               FontFamily="{StaticResource FontMono}" FontSize="13" Foreground="{StaticResource GoldBrush}" />
+                    <TextBlock x:Name="TimeTitle" Style="{StaticResource PanelTitle}" />
+                </DockPanel>
+                <c:LineChart Grid.Row="1" x:Name="TimeChart" YFormat="+0.00;-0.00;0.00" XFormat="0" XUnit="s" YUnit="%" />
+            </Grid>
+        </Border>
+
+        <!-- 3. WOW and FLUTTER + digitalni prikaz na desni -->
+        <Border x:Name="PanelWf" Grid.Row="3" Style="{StaticResource CdsPanel}">
+            <StackPanel>
+                <DockPanel Margin="0,0,0,4">
+                    <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                        <TextBlock x:Name="ModeLabel" Style="{StaticResource DimLabel}" />
+                        <RadioButton x:Name="ModeWrms" Style="{StaticResource CdsSeg}" GroupName="mode" Tag="0" IsChecked="True" Checked="Mode_Checked" />
+                        <RadioButton x:Name="ModeWpk" Style="{StaticResource CdsSeg}" GroupName="mode" Tag="1" Checked="Mode_Checked" />
+                        <RadioButton x:Name="ModeUnw" Style="{StaticResource CdsSeg}" GroupName="mode" Tag="2" Checked="Mode_Checked" />
+                        <TextBlock x:Name="RangeLabel" Style="{StaticResource DimLabel}" />
+                        <RadioButton Style="{StaticResource CdsSeg}" GroupName="range" Content="0.05 %" Tag="0.05" Checked="Range_Checked" />
+                        <RadioButton Style="{StaticResource CdsSeg}" GroupName="range" Content="0.15 %" Tag="0.15" IsChecked="True" Checked="Range_Checked" />
+                        <RadioButton Style="{StaticResource CdsSeg}" GroupName="range" Content="0.5 %" Tag="0.5" Checked="Range_Checked" />
+                        <RadioButton Style="{StaticResource CdsSeg}" GroupName="range" Content="1.0 %" Tag="1" Checked="Range_Checked" />
+                    </StackPanel>
+                    <TextBlock x:Name="WfTitle" Style="{StaticResource PanelTitle}" />
+                </DockPanel>
+                <Grid Height="80">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <c:StripMeter x:Name="WfMeter" Minimum="0" Maximum="0.15" MajorStep="0.03" MinorPerMajor="4" LabelFormat="0.00" Caption="%" />
+                    <Border Grid.Column="1" Style="{StaticResource DigitalBox}" Margin="12,0,0,0">
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock x:Name="WfValue" Style="{StaticResource DigitalBig}" Text="-.---  %" />
+                            <TextBlock x:Name="WfModeText" Style="{StaticResource DigitalSmall}" />
+                        </StackPanel>
+                    </Border>
+                </Grid>
+            </StackPanel>
+        </Border>
+
+        <!-- 4. WOW and FLUTTER IN FREQUENCY DOMAIN -->
+        <Border x:Name="PanelSpec" Grid.Row="4" Style="{StaticResource CdsPanel}">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+                <DockPanel Margin="0,0,0,4">
+                    <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                        <TextBlock x:Name="SpecWinLabel" Style="{StaticResource DimLabel}" />
+                        <RadioButton Style="{StaticResource CdsSeg}" GroupName="specwin" Content="4 s" Tag="4" Checked="SpecWin_Checked" />
+                        <RadioButton Style="{StaticResource CdsSeg}" GroupName="specwin" Content="8 s" Tag="8" Checked="SpecWin_Checked" />
+                        <RadioButton Style="{StaticResource CdsSeg}" GroupName="specwin" Content="16 s" Tag="16" IsChecked="True" Checked="SpecWin_Checked" />
+                    </StackPanel>
+                    <TextBlock x:Name="SpecTitle" Style="{StaticResource PanelTitle}" />
+                </DockPanel>
+                <c:LineChart Grid.Row="1" x:Name="SpecChart" LogX="True" XFormat="0.##" YFormat="0.000" XUnit="Hz" YUnit="%" />
+            </Grid>
+        </Border>
+
+
+        <!-- POROČILO: vse tri meritve (WRMS, DIN Wtd, Hz) na enem grafu -->
+        <Border x:Name="ReportPanel" Grid.Row="1" Grid.RowSpan="4" Style="{StaticResource CdsPanel}" Visibility="Collapsed">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <DockPanel Margin="0,0,0,4">
+                    <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                        <TextBlock x:Name="RepDevLabel" Style="{StaticResource DimLabel}" />
+                        <TextBox x:Name="DeviceBox" Style="{StaticResource CdsTextBox}" Width="190" Text="Nakamichi 682ZX" TextChanged="RepText_Changed" />
+                        <TextBlock x:Name="RepDateLabel" Style="{StaticResource DimLabel}" />
+                        <TextBox x:Name="DateBox" Style="{StaticResource CdsTextBox}" Width="110" TextChanged="RepText_Changed" />
+                        <TextBlock x:Name="RepAxLabel" Style="{StaticResource DimLabel}" />
+                        <RadioButton x:Name="AxFixed" Style="{StaticResource CdsSeg}" GroupName="axes" Tag="1" IsChecked="True" Checked="Axes_Checked" />
+                        <RadioButton x:Name="AxAuto" Style="{StaticResource CdsSeg}" GroupName="axes" Tag="0" Checked="Axes_Checked" />
+                    </StackPanel>
+                    <TextBlock x:Name="RepTitle" Style="{StaticResource PanelTitle}" />
+                </DockPanel>
+                <c:ReportChart Grid.Row="1" x:Name="RepChart" />
+                <UniformGrid Grid.Row="2" Rows="1" Columns="3" Margin="0,10,0,0">
+                    <Border Style="{StaticResource DigitalBox}" Margin="0,0,8,0">
+                        <StackPanel>
+                            <TextBlock x:Name="StatSpeedT" Style="{StaticResource PanelTitle}" FontSize="14" />
+                            <TextBlock x:Name="StatSpeed" FontFamily="{StaticResource FontMono}" FontSize="13" Foreground="{StaticResource TextBrush}" Margin="0,4,0,0" />
+                        </StackPanel>
+                    </Border>
+                    <Border Style="{StaticResource DigitalBox}" Margin="4,0,4,0">
+                        <StackPanel>
+                            <TextBlock x:Name="StatWrmsT" Style="{StaticResource PanelTitle}" FontSize="14" />
+                            <TextBlock x:Name="StatWrms" FontFamily="{StaticResource FontMono}" FontSize="13" Foreground="{StaticResource TextBrush}" Margin="0,4,0,0" />
+                        </StackPanel>
+                    </Border>
+                    <Border Style="{StaticResource DigitalBox}" Margin="8,0,0,0">
+                        <StackPanel>
+                            <TextBlock x:Name="StatPeakT" Style="{StaticResource PanelTitle}" FontSize="14" />
+                            <TextBlock x:Name="StatPeak" FontFamily="{StaticResource FontMono}" FontSize="13" Foreground="{StaticResource TextBrush}" Margin="0,4,0,0" />
+                        </StackPanel>
+                    </Border>
+                </UniformGrid>
+            </Grid>
+        </Border>
+
+        <DockPanel Grid.Row="5" Margin="2,2,2,0">
+            <TextBlock x:Name="StatusText" DockPanel.Dock="Right" FontSize="12" Foreground="{StaticResource GoldBrush}" />
+            <TextBlock x:Name="DemoText" FontSize="12" Foreground="{StaticResource RedBrush}" />
+        </DockPanel>
+    </Grid>
+</UserControl>

@@ -1,0 +1,43 @@
+name: Bug report / Napaka
+description: Something does not work as expected / Nekaj ne deluje, kot bi moralo
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for helping to improve CDS TapeLab. Hvala za pomoč pri izboljšavah.
+  - type: dropdown
+    id: edition
+    attributes:
+      label: Edition / Izdaja
+      options: [Windows 10/11, Windows XP, macOS, Linux]
+    validations: { required: true }
+  - type: input
+    id: version
+    attributes:
+      label: Program version / Različica programa
+      description: Shown in About / Vidno v oknu O programu
+      placeholder: "0.6.0"
+    validations: { required: true }
+  - type: input
+    id: card
+    attributes:
+      label: Sound card and driver / Zvočna kartica in gonilnik
+      placeholder: "Behringer UMC202HD, ASIO, 192 kHz"
+  - type: dropdown
+    id: measurement
+    attributes:
+      label: Measurement / Meritev
+      options: [Wow & Flutter, Playback frequency response, Recording frequency response, Head azimuth, True RMS voltmeter, Start screen / Settings, Other]
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened? / Kaj se je zgodilo?
+      description: Steps to reproduce, what you expected and what you got. A screenshot helps.
+    validations: { required: true }
+  - type: textarea
+    id: log
+    attributes:
+      label: Log (XP edition) / Dnevnik (izdaja za XP)
+      description: "Windows XP edition: paste %AppData%\\CDSTapeLab\\log.txt"
+      render: text
