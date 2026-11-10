@@ -26,6 +26,8 @@
     <Compile Include="..\windows\CDSMeasure\Core\Loc.cs" Link="Core\Loc.cs" />
     <Compile Include="..\windows\CDSMeasure\Core\AppSettings.cs" Link="Core\AppSettings.cs" />
     <Compile Include="..\windows\CDSMeasure\Core\VoltCore.cs" Link="Core\VoltCore.cs" />
+    <Compile Include="..\windows\CDSMeasure\Core\AzimuthCore.cs" Link="Core\AzimuthCore.cs" />
+    <Compile Include="..\windows\CDSMeasure\Core\Spectrum.cs" Link="Core\Spectrum.cs" />
   </ItemGroup>
 
   <ItemGroup>

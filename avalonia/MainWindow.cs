@@ -82,7 +82,7 @@ public sealed class MainWindow : Window
     private void Open(string id)
     {
         (_host.Content as IDisposable)?.Dispose();
-        Control v = id switch { "volt" => new VoltView(), _ => new StartView() };
+        Control v = id switch { "volt" => new VoltView(), "az" => new AzimuthView(), _ => new StartView() };
         _titleKey = id switch { "wfs" => "tile.wfs.t", "pb" => "tile.pb.t", "az" => "tile.az.t", "volt" => "tile.volt.t", _ => "tile.rec.t" };
         _host.Content = v;
         _back.IsVisible = true;
