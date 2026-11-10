@@ -10,7 +10,7 @@ En program namesto več merilnikov. Naredil ga je serviser z več kot 30 leti iz
 [![Izdaja](https://img.shields.io/github/v/release/andrej-cds/TapeLab?color=c8a96e&label=izdaja&style=flat-square)](https://github.com/andrej-cds/TapeLab/releases/latest)
 [![Licenca: AGPL v3](https://img.shields.io/badge/licenca-AGPL--3.0-c8a96e?style=flat-square)](LICENSE)
 [![Platforme](https://img.shields.io/badge/Windows%20XP%20%E2%80%A2%2010%20%E2%80%A2%2011-podprto-c8a96e?style=flat-square)](#prenos)
-[![macOS](https://img.shields.io/badge/macOS-kmalu-555?style=flat-square)](#prenos)
+[![macOS](https://img.shields.io/badge/macOS%20%E2%80%A2%20Linux-alfa-555?style=flat-square)](#prenos)
 
 [English](README.md) · **Slovenščina** · [Spletna stran](https://www.cassettedeck-service.com/tapelab.html)
 
@@ -54,8 +54,8 @@ Vsaka izdaja vsebuje pripravljene pakete: **[zadnja izdaja](https://github.com/a
 |---|---|---|
 | **Windows 10 / 11** (64-bit) | `CDSTapeLab-Setup-x.y.z.exe` | Namestitveni program. Potrebuješ ASIO gonilnik za svojo kartico. |
 | **Windows XP SP3** (32-bit) | `CDSTapeLab-XP-x.y.z.zip` | Brez namestitve: razpakiraš in zaženeš `CDSTapeLab.exe`. Potrebuje .NET Framework 4.0 in ASIO gonilnik (npr. kX ASIO ali ASIO4ALL). Glej README v paketu. |
-| **macOS** | — | V razvoju (Apple Silicon in Intel). |
-| **Linux** | — | V načrtu. |
+| **macOS** 12+ (alfa) | `CDSTapeLab-x.y.z-macOS-apple-silicon.dmg` / `-intel.dmg` | Zgodnja različica: preizkus vhoda in voltmeter. Ni podpisana: ob prvem zagonu desni klik → Odpri. |
+| **Linux** (alfa) | `CDSTapeLab-x.y.z-linux-x64.tar.gz` / `-arm64.tar.gz` | Zgodnja različica: preizkus vhoda in voltmeter. Razpakiraj in zaženi `./install.sh`. Morda potrebuje `libportaudio2`. |
 
 > **Windows SmartScreen** lahko pokaže modro opozorilo za program neznanega izdajatelja: klikni *Več informacij → Vseeno zaženi*.
 

@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=CDS TapeLab
+GenericName=Cassette deck measurements
+Comment=Wow & flutter, frequency response, head azimuth, True RMS millivoltmeter
+Exec=@APPDIR@/app/CDSTapeLab
+Icon=@APPDIR@/cds-tapelab.png
+Terminal=false
+Categories=AudioVideo;Audio;Utility;

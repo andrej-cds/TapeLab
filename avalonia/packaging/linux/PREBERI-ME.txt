@@ -1,0 +1,28 @@
+CDS TapeLab for Linux / CDS TapeLab za Linux
+============================================
+
+INSTALL / NAMESTITEV
+  tar xzf CDSTapeLab-*-linux-*.tar.gz
+  cd CDSTapeLab-*-linux-*
+  ./install.sh
+
+The program is installed for your user only (no sudo). It appears in the application menu.
+Program se namesti samo za tvojega uporabnika (brez sudo) in se pojavi v meniju aplikacij.
+You can also run it directly / Lahko ga zaženeš tudi neposredno:  ./app/CDSTapeLab
+Remove / Odstranitev: ./uninstall.sh
+
+REQUIREMENTS / ZAHTEVE
+- 64-bit Linux (x64 or arm64), a desktop with X11 or Wayland, ALSA or PipeWire/PulseAudio.
+- If the program says that PortAudio is missing / Če program javi, da manjka PortAudio:
+    Debian / Ubuntu / Mint:  sudo apt install libportaudio2
+    Fedora:                  sudo dnf install portaudio
+    Arch:                    sudo pacman -S portaudio
+- A sound card with a stereo input. For 192 kHz you need a card that supports it
+  (for example Behringer UMC202HD). Pick the card in Settings.
+  Zvočna kartica s stereo vhodom; za 192 kHz kartica, ki ga podpira. Kartico izbereš v Nastavitvah.
+
+TIP: if the levels stay at -inf dB, check that another program (PipeWire/PulseAudio mixer) is not holding the card
+exclusively, and that the input is not muted in the system mixer.
+NASVET: če ostanejo ravni na -inf dB, preveri, da kartice ne drži drug program in da vhod ni utišan v sistemskem mešalniku.
+
+Source code and help / Izvorna koda in pomoč: https://github.com/andrej-cds/TapeLab

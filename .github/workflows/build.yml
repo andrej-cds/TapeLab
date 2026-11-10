@@ -142,10 +142,50 @@ jobs:
           path: avalonia/dist/*.dmg
           if-no-files-found: error
 
+  linux:
+    name: Linux (${{ matrix.tag }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - rid: linux-x64
+            tag: x64
+            os: ubuntu-latest
+          - rid: linux-arm64
+            tag: arm64
+            os: ubuntu-24.04-arm
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Version
+        run: |
+          if [[ "$GITHUB_REF" == refs/tags/v* ]]; then
+            V="${GITHUB_REF_NAME#v}"
+          else
+            V="$(sed -n 's:.*<Version>\(.*\)</Version>.*:\1:p' avalonia/CDSTapeLab.csproj | head -1)"
+          fi
+          echo "VERSION=$V" >> "$GITHUB_ENV"
+          echo "Version: $V"
+
+      - name: Build tar.gz
+        working-directory: avalonia
+        run: bash packaging/make-linux.sh "${{ matrix.rid }}" "$VERSION" "${{ matrix.tag }}"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: linux-${{ matrix.tag }}
+          path: avalonia/dist/*.tar.gz
+          if-no-files-found: error
+
   release:
     name: Publish GitHub Release
     if: startsWith(github.ref, 'refs/tags/v')
-    needs: [windows, windows-xp, macos]
+    needs: [windows, windows-xp, macos, linux]
     runs-on: ubuntu-latest
     permissions:
       contents: write
