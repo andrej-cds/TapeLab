@@ -30,6 +30,8 @@ public sealed class StripMeter : Control
     public double MajorStep { get => _major; set { _major = value; InvalidateVisual(); } }
     public int MinorPerMajor { get => _minor; set { _minor = value; InvalidateVisual(); } }
     public string LabelFormat { get => _fmt; set { _fmt = value; InvalidateVisual(); } }
+    public double Limit { get; set; } = double.NaN;
+    public string LimitLabel { get; set; } = "";
     public string Caption { get => _caption; set { _caption = value; InvalidateVisual(); } }
 
     private static FormattedText Txt(string s, Typeface tf, double size, IBrush b) =>
@@ -69,6 +71,18 @@ public sealed class StripMeter : Control
                 }
         }
         if (_caption.Length > 0) dc.DrawText(Txt(_caption, Mono, 11, Ui.Dim), new Point(14, 8));
+
+        if (!double.IsNaN(Limit) && Limit > _min && Limit < _max)
+        {
+            double lx = X(Limit);
+            dc.DrawRectangle(LimitZone, null, new Rect(lx, baseY - 30, right - lx, 52));
+            dc.DrawLine(new Pen(Ui.Text, 1.6, new DashStyle(new double[] { 4, 3 }, 0)), new Point(lx, baseY - 34), new Point(lx, baseY + 22));
+            if (LimitLabel.Length > 0)
+            {
+                var lt = Txt(LimitLabel, MonoBold, 11, Ui.Text);
+                dc.DrawText(lt, new Point(lx + 6 + lt.Width > w - 8 ? lx - 6 - lt.Width : lx + 6, 8));
+            }
+        }
 
         double nx = X(_value);
         dc.DrawLine(NeedlePen, new Point(nx, baseY - 36), new Point(nx, baseY + 12));

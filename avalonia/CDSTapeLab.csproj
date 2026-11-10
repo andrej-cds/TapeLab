@@ -10,7 +10,7 @@
     <AssemblyName>CDSTapeLab</AssemblyName>
     <RootNamespace>CDSMeasure</RootNamespace>
     <Product>CDS TapeLab</Product>
-    <Version>0.7.0</Version>
+    <Version>0.7.1</Version>
     <DefineConstants>$(DefineConstants);AVALONIA</DefineConstants>
     <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
   </PropertyGroup>
@@ -30,6 +30,8 @@
     <Compile Include="..\windows\CDSMeasure\Core\AzimuthCore.cs" Link="Core\AzimuthCore.cs" />
     <Compile Include="..\windows\CDSMeasure\Core\Spectrum.cs" Link="Core\Spectrum.cs" />
     <Compile Include="..\windows\CDSMeasure\Core\WfCore.cs" Link="Core\WfCore.cs" />
+    <Compile Include="..\windows\CDSMeasure\Core\Mechanics.cs" Link="Core\Mechanics.cs" />
+    <Compile Include="..\windows\CDSMeasure\Core\Specs.cs" Link="Core\Specs.cs" />
     <Compile Include="..\windows\CDSMeasure\Core\PbCore.cs" Link="Core\PbCore.cs" />
     <Compile Include="..\windows\CDSMeasure\Core\RecAnalysis.cs" Link="Core\RecAnalysis.cs" />
   </ItemGroup>

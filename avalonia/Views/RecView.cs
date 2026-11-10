@@ -75,10 +75,14 @@ public sealed class RecView : UserControl, IDisposable
         _level.FontFamily = Ui.Mono; _level.FontSize = 13; _level.Foreground = Ui.Gold;
         _level.VerticalAlignment = VerticalAlignment.Center; _level.Margin = new Thickness(0, 0, 18, 4);
         bar.Children.Add(_level);
-        _shot.Margin = new Thickness(0, 0, 8, 4); _shot.Click += ExportPng;
-        _csv.Margin = new Thickness(0, 0, 0, 4); _csv.Click += ExportCsv;
-        bar.Children.Add(_shot); bar.Children.Add(_csv);
-        Grid.SetRow(bar, 0); root.Children.Add(bar);
+        _shot.Margin = new Thickness(6, 0, 0, 4); _shot.Click += ExportPng;
+        _csv.Margin = new Thickness(6, 0, 0, 4); _csv.Click += ExportCsv;
+        var actions = new StackPanel { Orientation = Orientation.Horizontal, VerticalAlignment = VerticalAlignment.Top };
+        actions.Children.Add(_shot); actions.Children.Add(_csv);
+        var top = new DockPanel();
+        DockPanel.SetDock(actions, Dock.Right);
+        top.Children.Add(actions); top.Children.Add(bar);
+        Grid.SetRow(top, 0); root.Children.Add(top);
 
         var panel = Ui.PanelBox(_chart, new Thickness(6));
         Grid.SetRow(panel, 1); root.Children.Add(panel);

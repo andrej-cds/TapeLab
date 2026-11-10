@@ -20,6 +20,8 @@ public sealed class LineChart : Control
 
     public bool LogX { get; set; }
     public double[]? XTicks { get; set; }
+    public IReadOnlyList<(double X, string Label)>? Markers { get; set; }
+    private static readonly Pen MarkPen = new(new SolidColorBrush(Color.FromArgb(0xB0, 0xE0, 0x9A, 0x3C)), 1, new DashStyle(new double[] { 4, 3 }, 0));
     public string XFormat { get; set; } = "0.##";
     public string YFormat { get; set; } = "0.00";
     public string XUnit { get; set; } = "";
@@ -94,6 +96,20 @@ public sealed class LineChart : Control
         {
             var fu = Text(XUnit, Ui.GoldLight);
             dc.DrawText(fu, new Point(R - fu.Width - 6, B - fu.Height - 3));
+        }
+
+        if (Markers is { Count: > 0 })
+        {
+            using var mclip = dc.PushClip(plot);
+            int row = 0;
+            foreach (var m in Markers.OrderBy(q => q.X))
+            {
+                if (m.X < _x0 || m.X > _x1) continue;
+                double mx = X(m.X);
+                dc.DrawLine(MarkPen, new Point(mx, T), new Point(mx, B));
+                var ft = Text(m.Label, Ui.GoldLight, 10);
+                dc.DrawText(ft, new Point(Math.Min(mx + 4, R - ft.Width - 2), T + 3 + (row++ % 4) * 13));
+            }
         }
 
         var pts = _pts;

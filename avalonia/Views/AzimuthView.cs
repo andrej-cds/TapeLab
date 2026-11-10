@@ -51,11 +51,15 @@ public sealed class AzimuthView : UserControl, IDisposable
             ("±2 µs", 2.0), ("±5 µs", 5.0), ("±10 µs", 10.0));
         AddGroup(bar, "az.view", v => { _showLiss = v > 0; _liss.IsVisible = _showLiss; if (!_showLiss) _liss.Clear(); },
             ("az.v.trace", 0.0), ("az.v.liss", 1.0));
-        _resetMax.Margin = new Thickness(0, 0, 8, 4); _shot.Margin = new Thickness(0, 0, 0, 4);
+        _resetMax.Margin = new Thickness(6, 0, 0, 4); _shot.Margin = new Thickness(6, 0, 0, 4);
         _resetMax.Click += () => { _maxSum = double.NegativeInfinity; };
         _shot.Click += ExportPng;
-        bar.Children.Add(_resetMax); bar.Children.Add(_shot);
-        Grid.SetRow(bar, 0); root.Children.Add(bar);
+        var actions = new StackPanel { Orientation = Orientation.Horizontal, VerticalAlignment = VerticalAlignment.Top };
+        actions.Children.Add(_resetMax); actions.Children.Add(_shot);
+        var top = new DockPanel();
+        DockPanel.SetDock(actions, Dock.Right);
+        top.Children.Add(actions); top.Children.Add(bar);
+        Grid.SetRow(top, 0); root.Children.Add(top);
 
         var body = new Grid();
         body.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });

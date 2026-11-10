@@ -30,6 +30,11 @@ public sealed class WfView : UserControl, IDisposable
     private readonly List<WPoint> _speed = new(), _wf = new(), _pk = new(), _hz = new();
     private readonly List<float> _raw = new();
     private double[]? _specAvg; private int _specKey;
+    private MechProfile _mech = MechProfile.Generic;
+    private ModelSpec? _model, _defModel;
+    private bool _over;
+    private readonly WrapPanel _mechPanel = new(), _modelPanel = new();
+    private readonly List<(Seg Seg, MechProfile Prof)> _mechSegs = new();
 
     private readonly CdsButton _start = new(true), _shot = new(), _csv = new();
     private readonly TextBlock _elapsed = new(), _level = new(), _status = new(), _source = new(), _endText = new(), _period = new();
@@ -62,11 +67,17 @@ public sealed class WfView : UserControl, IDisposable
         Group(bar, "wfs.duration", null, d => _durationMin = d, 45, ("15", 15), ("30", 30), ("45", 45), ("60", 60));
         Group(bar, "wfs.chan", null, c => { _chan = (int)c; }, 0, ("L", 0), (null!, 1), (null!, 2));
         Group(bar, "wfs.ref", null, r => { _refHz = r; if (_running) { Stop(); Begin(); } }, 3000, ("3000 Hz", 3000), ("3150 Hz", 3150));
-        _shot.Margin = new Thickness(0, 0, 6, 4); _csv.Margin = new Thickness(0, 0, 0, 4);
+        _shot.Margin = new Thickness(6, 0, 0, 4); _csv.Margin = new Thickness(6, 0, 0, 4);
         _shot.Click += ExportPng; _csv.Click += ExportCsv;
-        bar.Children.Add(_shot); bar.Children.Add(_csv);
+        var actions = new StackPanel { Orientation = Orientation.Horizontal, VerticalAlignment = VerticalAlignment.Top };
+        actions.Children.Add(_shot); actions.Children.Add(_csv);
+        var top = new DockPanel();
+        DockPanel.SetDock(actions, Dock.Right);
+        top.Children.Add(actions); top.Children.Add(bar);
         var barHost = new StackPanel();
-        barHost.Children.Add(bar);
+        barHost.Children.Add(top);
+        BuildMech();
+        barHost.Children.Add(_mechPanel); barHost.Children.Add(_modelPanel);
         _endText.HorizontalAlignment = HorizontalAlignment.Center; _endText.FontFamily = Ui.Head; _endText.FontSize = 20; _endText.Foreground = Ui.Gold;
         barHost.Children.Add(_endText);
         Grid.SetRow(barHost, 0); root.Children.Add(barHost);
@@ -91,7 +102,7 @@ public sealed class WfView : UserControl, IDisposable
         Style(_wfValue, _wfModeText, "-.---  %", "");
         var ctl = new StackPanel { Orientation = Orientation.Horizontal };
         AddLabel(ctl, "wfs.mode");
-        SegRow(ctl, m => { _mode = (int)m; ApplyLang(); }, 0, ("wfs.wrms", 0), ("wfs.wpk", 1), ("wfs.unw", 2));
+        SegRow(ctl, m => { _mode = (int)m; ApplyLang(); UpdateLimit(); }, 0, ("wfs.wrms", 0), ("wfs.wpk", 1), ("wfs.unw", 2));
         AddLabel(ctl, "wfs.range");
         SegRow(ctl, r => { _wfRange = r; ApplyRange(); Redraw(_sw.Elapsed.TotalSeconds); }, 0.15, ("0.05 %", 0.05), ("0.15 %", 0.15), ("0.5 %", 0.5), ("1.0 %", 1));
         var p3 = MeterPanel("wfs.wf", _wfMeter, _wfValue, _wfModeText, ctl);
@@ -127,7 +138,7 @@ public sealed class WfView : UserControl, IDisposable
     private static void Style(TextBlock big, TextBlock small, string bigText, string smallText)
     {
         big.Text = bigText; big.FontFamily = Ui.Mono; big.FontSize = 26; big.Foreground = Ui.GoldLight; big.HorizontalAlignment = HorizontalAlignment.Right;
-        small.Text = smallText; small.FontFamily = Ui.Mono; small.FontSize = 15; small.Foreground = Ui.Dim; small.HorizontalAlignment = HorizontalAlignment.Right;
+        small.Text = smallText; small.FontFamily = Ui.Mono; small.FontSize = 13; small.TextTrimming = TextTrimming.CharacterEllipsis; small.Foreground = Ui.Dim; small.HorizontalAlignment = HorizontalAlignment.Right;
     }
 
     private void AddLabel(Panel host, string key)
@@ -177,7 +188,7 @@ public sealed class WfView : UserControl, IDisposable
         head.Children.Add(title);
         var row = new Grid { Height = 80 };
         row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-        row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(190) });
+        row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(250) });
         var digital = new Border { Background = Ui.Bg, BorderBrush = Ui.Line, BorderThickness = new Thickness(1), CornerRadius = new CornerRadius(8), Margin = new Thickness(12, 0, 0, 0), Padding = new Thickness(10, 4) };
         var st = new StackPanel { VerticalAlignment = VerticalAlignment.Center };
         st.Children.Add(big); st.Children.Add(small);
@@ -211,6 +222,72 @@ public sealed class WfView : UserControl, IDisposable
         foreach (var (seg, text) in _segs) seg.Text = text();
         _wfModeText.Text = _mode switch { 0 => Loc.T("wfs.wrms"), 1 => Loc.T("wfs.wpk"), _ => Loc.T("wfs.unw") };
         if (!_running) _source.Text = Ui.Tt("Vhod: ", "Input: ") + PaEngine.CardText();
+    }
+
+    // ---------- mehanizem (neobvezno) ----------
+    private void BuildMech()
+    {
+        _mechPanel.Margin = new Thickness(0, 0, 0, 2);
+        _modelPanel.Margin = new Thickness(0, 0, 0, 4);
+        var lab = Ui.Label(); lab.Margin = new Thickness(0, 6, 10, 4); lab.FontSize = 12; lab.VerticalAlignment = VerticalAlignment.Center;
+        _texts.Add((lab, "wfs.mech")); _mechPanel.Children.Add(lab);
+        foreach (var id in new[] { "sankyo", "sankyobd", "sankyosd", "classic", "zx9", "dragon", "none" })
+        {
+            var prof = MechProfile.All.First(m => m.Id == id);
+            var seg = new Seg("") { On = id == "none", Margin = new Thickness(0, 0, 4, 4) };
+            if (prof.Models.Length > 0) ToolTip.SetTip(seg, string.Join(", ", prof.Models));
+            var pf = prof;
+            seg.Click += () =>
+            {
+                foreach (var (sg, _) in _mechSegs) sg.On = false;
+                seg.On = true; _mech = pf; _model = null;
+                BuildModels(); UpdateLimit(); UpdateMarkers();
+            };
+            _mechSegs.Add((seg, prof));
+            _segs.Add((seg, () => id == "none" ? Loc.T("wfs.mech.none") : id.StartsWith("sankyo") ? "Sankyo " + prof.Title[^2..] : id == "zx9" ? "Nakamichi ZX-9" : prof.Title));
+            _mechPanel.Children.Add(seg);
+        }
+    }
+
+    private void BuildModels()
+    {
+        _modelPanel.Children.Clear();
+        _defModel = null;
+        var specs = Specs.For(_mech.Id).ToList();
+        if (specs.Count > 0 && specs.Select(q => q.WfMax).Distinct().Count() == 1) _model = specs[0];
+        bool pick = specs.Count > 0 && _model == null;
+        if (pick) _defModel = specs.GroupBy(q => q.WfMax).OrderByDescending(g => g.Count()).ThenBy(g => g.Key).First().First();
+        if (!pick) return;
+        var lab = Ui.Label(); lab.Text = Loc.T("wfs.model"); lab.FontSize = 12; lab.Margin = new Thickness(0, 6, 10, 4); lab.VerticalAlignment = VerticalAlignment.Center;
+        _modelPanel.Children.Add(lab);
+        var group = new List<Seg>();
+        foreach (var sp in specs)
+        {
+            var seg = new Seg(sp.Model) { Margin = new Thickness(0, 0, 4, 4) };
+            ToolTip.SetTip(seg, $"max {sp.WfMax:0.000} % {sp.Standard}");
+            var m = sp;
+            seg.Click += () => { foreach (var g in group) g.On = false; seg.On = true; _model = m; UpdateLimit(); };
+            group.Add(seg); _modelPanel.Children.Add(seg);
+        }
+    }
+
+    private void UpdateLimit()
+    {
+        var m = _model ?? _defModel;
+        bool on = m != null && _mode == 0 && m.Standard.StartsWith("WRMS", StringComparison.OrdinalIgnoreCase);
+        _wfMeter.Limit = on ? m!.WfMax : double.NaN;
+        _wfMeter.LimitLabel = on ? $"{Loc.T("wfs.limit")} {m!.WfMax:0.000}" : "";
+        if (!on && _over) { _over = false; _wfValue.Foreground = Ui.GoldLight; }
+        _wfMeter.InvalidateVisual();
+    }
+
+    private void UpdateMarkers()
+    {
+        bool sl = Loc.Lang == "sl";
+        double ratio = _hz.Count > 0 ? _hz.Average(p => p.Y) / _refHz : 1.0;
+        _specChart.Markers = _mech.Id == "none" ? null
+            : _mech.Expected(ratio).Where(e => e.Hz > 0).Select(e => (e.Hz, $"{e.Hz:0.00} Hz · {(sl ? e.Sl : e.En)}")).ToList();
+        _specChart.InvalidateVisual();
     }
 
     private void ApplyRange()
@@ -303,6 +380,8 @@ public sealed class WfView : UserControl, IDisposable
             _speedHz.Text = (_refHz * (1 + _speedShown / 100)).ToString("0.0", inv) + "  Hz";
             _speedPct.Text = _speedShown.ToString("+0.00;-0.00;0.00", inv) + "  %";
             _wfValue.Text = _wfShown.ToString("0.000", inv) + "  %";
+            bool over = !double.IsNaN(_wfMeter.Limit) && _wfShown > _wfMeter.Limit;
+            if (over != _over) { _over = over; _wfValue.Foreground = over ? Ui.Red : Ui.GoldLight; }
         }
         else { _speedHz.Text = "----  Hz"; _speedPct.Text = "----  %"; _wfValue.Text = "-.---  %"; }
 
@@ -351,6 +430,7 @@ public sealed class WfView : UserControl, IDisposable
             spec = spec.Select((q, i) => new WPoint(q.X, _specAvg![i])).ToList();
         }
         UpdatePeriodicity(spec);
+        UpdateMarkers();
         _specChart.XTicks = new[] { 0.2, 0.4, 0.6, 0.8, 1, 2, 4, 6, 8, 10, 20, 40, 60, 80, 100 };
         _specChart.SetData(spec, 0.2, 100, 0, _wfRange);
     }
