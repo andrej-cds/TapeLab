@@ -14,9 +14,10 @@ Remove / Odstranitev: ./uninstall.sh
 REQUIREMENTS / ZAHTEVE
 - 64-bit Linux (x64 or arm64), a desktop with X11 or Wayland, ALSA or PipeWire/PulseAudio.
 - If the program says that PortAudio is missing / Če program javi, da manjka PortAudio:
-    Debian / Ubuntu / Mint:  sudo apt install libportaudio2
-    Fedora:                  sudo dnf install portaudio
-    Arch:                    sudo pacman -S portaudio
+    Debian / Ubuntu / Mint:  sudo apt install libportaudio2 libjack-jackd2-0
+    Fedora:                  sudo dnf install portaudio jack-audio-connection-kit
+    Arch:                    sudo pacman -S portaudio jack2
+  (the bundled PortAudio also needs libasound2 and libjack; with PipeWire the package pipewire-jack is enough)
 - A sound card with a stereo input. For 192 kHz you need a card that supports it
   (for example Behringer UMC202HD). Pick the card in Settings.
   Zvočna kartica s stereo vhodom; za 192 kHz kartica, ki ga podpira. Kartico izbereš v Nastavitvah.

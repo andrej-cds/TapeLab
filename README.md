@@ -56,7 +56,7 @@ Every release contains ready-made packages: **[latest release](https://github.co
 | **Windows 10 / 11** (64-bit) | `CDSTapeLab-Setup-x.y.z.exe` | Installer. Needs an ASIO driver for your sound card. |
 | **Windows XP SP3** (32-bit) | `CDSTapeLab-XP-x.y.z.zip` | No installer: unpack and run `CDSTapeLab.exe`. Needs .NET Framework 4.0 and an ASIO driver (e.g. kX ASIO or ASIO4ALL). See the README inside. |
 | **macOS** 12+ (alpha) | `CDSTapeLab-x.y.z-macOS-apple-silicon.dmg` / `-intel.dmg` | Early version: input test and voltmeter. Not signed: right-click → Open on first launch. |
-| **Linux** (alpha) | `CDSTapeLab-x.y.z-linux-x64.tar.gz` / `-arm64.tar.gz` | Early version: input test and voltmeter. Unpack and run `./install.sh`. May need `libportaudio2`. |
+| **Linux** (alpha) | `CDSTapeLab-x.y.z-linux-x64.tar.gz` / `-arm64.tar.gz` | Early version: input test and voltmeter. Unpack and run `./install.sh`. May need `libportaudio2` and `libjack-jackd2-0`. |
 
 > **Windows SmartScreen** may show a blue warning for a program from an unknown publisher: click *More info → Run anyway*.
 

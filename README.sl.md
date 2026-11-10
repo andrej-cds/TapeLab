@@ -55,7 +55,7 @@ Vsaka izdaja vsebuje pripravljene pakete: **[zadnja izdaja](https://github.com/a
 | **Windows 10 / 11** (64-bit) | `CDSTapeLab-Setup-x.y.z.exe` | Namestitveni program. Potrebuješ ASIO gonilnik za svojo kartico. |
 | **Windows XP SP3** (32-bit) | `CDSTapeLab-XP-x.y.z.zip` | Brez namestitve: razpakiraš in zaženeš `CDSTapeLab.exe`. Potrebuje .NET Framework 4.0 in ASIO gonilnik (npr. kX ASIO ali ASIO4ALL). Glej README v paketu. |
 | **macOS** 12+ (alfa) | `CDSTapeLab-x.y.z-macOS-apple-silicon.dmg` / `-intel.dmg` | Zgodnja različica: preizkus vhoda in voltmeter. Ni podpisana: ob prvem zagonu desni klik → Odpri. |
-| **Linux** (alfa) | `CDSTapeLab-x.y.z-linux-x64.tar.gz` / `-arm64.tar.gz` | Zgodnja različica: preizkus vhoda in voltmeter. Razpakiraj in zaženi `./install.sh`. Morda potrebuje `libportaudio2`. |
+| **Linux** (alfa) | `CDSTapeLab-x.y.z-linux-x64.tar.gz` / `-arm64.tar.gz` | Zgodnja različica: preizkus vhoda in voltmeter. Razpakiraj in zaženi `./install.sh`. Morda potrebuje `libportaudio2` in `libjack-jackd2-0`. |
 
 > **Windows SmartScreen** lahko pokaže modro opozorilo za program neznanega izdajatelja: klikni *Več informacij → Vseeno zaženi*.
 
