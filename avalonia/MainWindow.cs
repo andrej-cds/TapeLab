@@ -66,6 +66,8 @@ public sealed class MainWindow : Window
         Loc.Changed += ApplyLang;
         Closing += (_, _) => (_host.Content as IDisposable)?.Dispose();
         ShowStart();
+        var test = Environment.GetEnvironmentVariable("CDS_OPEN");   // samo za preizkuse: takoj odpri izbrano meritev
+        if (!string.IsNullOrEmpty(test)) Open(test);
     }
 
     private void ShowStart()
