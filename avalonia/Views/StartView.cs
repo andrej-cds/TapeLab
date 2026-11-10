@@ -25,7 +25,7 @@ public sealed class StartView : UserControl, IDisposable
 
     public StartView()
     {
-        _tiles.Add(new Tile { Id = "wfs", TitleKey = "tile.wfs.t", DescKey = "tile.wfs.d", Icon = "M0,20 C8,-6 22,-6 30,20 S52,46 60,20 S82,-6 90,20" });
+        _tiles.Add(new Tile { Id = "wfs", TitleKey = "tile.wfs.t", DescKey = "tile.wfs.d", Ready = true, Icon = "M0,20 C8,-6 22,-6 30,20 S52,46 60,20 S82,-6 90,20" });
         _tiles.Add(new Tile { Id = "pb", TitleKey = "tile.pb.t", DescKey = "tile.pb.d", Icon = "M0,38 L10,36 L20,16 L34,12 L60,12 L80,14 L92,24 L100,46" });
         _tiles.Add(new Tile { Id = "rec", TitleKey = "tile.rec.t", DescKey = "tile.rec.d", Icon = "M0,40 L10,38 L20,20 L34,14 L60,14 L80,12 L92,20 L100,40" });
         _tiles.Add(new Tile { Id = "az", TitleKey = "tile.az.t", DescKey = "tile.az.d", Ready = true, Icon = "M0,30 L100,30 M8,44 L92,16" });
