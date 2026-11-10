@@ -31,6 +31,7 @@
     <Compile Include="..\windows\CDSMeasure\Core\Spectrum.cs" Link="Core\Spectrum.cs" />
     <Compile Include="..\windows\CDSMeasure\Core\WfCore.cs" Link="Core\WfCore.cs" />
     <Compile Include="..\windows\CDSMeasure\Core\PbCore.cs" Link="Core\PbCore.cs" />
+    <Compile Include="..\windows\CDSMeasure\Core\RecAnalysis.cs" Link="Core\RecAnalysis.cs" />
   </ItemGroup>
 
   <ItemGroup>

@@ -3,7 +3,7 @@ using PortAudioSharp;
 
 namespace CDSMeasure.Audio;
 
-public sealed record AudioDevice(int Index, string Name, int MaxIn, double DefaultRate);
+public sealed record AudioDevice(int Index, string Name, int MaxIn, double DefaultRate, int MaxOut = 0);
 
 /// <summary>Seznam vhodnih naprav prek PortAudio (CoreAudio na macOS, ALSA/PipeWire na Linuxu).</summary>
 public static class PaEngine
@@ -33,7 +33,7 @@ public static class PaEngine
             {
                 var di = PortAudio.GetDeviceInfo(i);
                 if (di.maxInputChannels > 0)
-                    list.Add(new AudioDevice(i, di.name ?? ("#" + i), di.maxInputChannels, di.defaultSampleRate));
+                    list.Add(new AudioDevice(i, di.name ?? ("#" + i), di.maxInputChannels, di.defaultSampleRate, di.maxOutputChannels));
             }
         }
         catch (Exception ex) { LastError = ex.Message; }
@@ -149,6 +149,125 @@ public sealed class PaCapture : IDisposable
     {
         var s = _stream;
         _stream = null;
+        if (s == null) return;
+        try { s.Stop(); } catch { }
+        try { s.Close(); } catch { }
+        try { s.Dispose(); } catch { }
+    }
+
+    public void Dispose() => Stop();
+}
+
+
+/// <summary>Logaritemski sweep (stereo, isti signal na obeh kanalih) za izhod PortAudio.</summary>
+public sealed class SweepSynth
+{
+    private readonly double _lnr, _k, _dur, _amp;
+    private readonly int _rate;
+    private long _n;
+
+    public double Seconds => _dur;
+    public bool Finished => _n >= (long)(_dur * _rate);
+
+    public SweepSynth(int rate, double f0, double f1, double seconds, double levelDbfs)
+    {
+        _rate = rate; _dur = seconds;
+        _lnr = Math.Log(f1 / f0); _k = 2 * Math.PI * f0 * seconds / _lnr;
+        _amp = Math.Pow(10, levelDbfs / 20);
+    }
+
+    /// <summary>Zapiše naslednjih `frames` vzorcev v kanala first in first+1 prepletenega bufferja z `chans` kanali.</summary>
+    public void Fill(float[] buf, int frames, int chans, int first)
+    {
+        long total = (long)(_dur * _rate);
+        Array.Clear(buf, 0, frames * chans);
+        for (int i = 0; i < frames; i++)
+        {
+            if (_n >= total) break;
+            double t = (double)_n / _rate;
+            double phase = _k * (Math.Exp(t * _lnr / _dur) - 1);
+            double env = Math.Min(1.0, Math.Min(t / 0.05, (_dur - t) / 0.05));
+            float s = (float)(_amp * Math.Max(0, env) * Math.Sin(phase));
+            buf[i * chans + first] = s;
+            if (first + 1 < chans) buf[i * chans + first + 1] = s;
+            _n++;
+        }
+    }
+}
+
+/// <summary>Hkrati predvaja sweep in zajema vhod iste naprave (Recording meritev).</summary>
+public sealed class PaDuplex : IDisposable
+{
+    private PortAudioSharp.Stream? _stream;
+    private PortAudioSharp.Stream.Callback? _cb;
+    private float[] _tmp = Array.Empty<float>();
+
+    public string DeviceName { get; private set; } = "";
+    public int SampleRate { get; private set; }
+    public int Channels { get; private set; }
+
+    /// <param name="makeGen">iz frekvence vzorčenja naredi generator</param>
+    /// <param name="makeSink">iz frekvence vzorčenja in števila kanalov naredi sprejemnik zajetih vzorcev</param>
+    public string? Start(AudioDevice dev, int inFirst, int outFirst, Func<int, SweepSynth> makeGen, Func<int, int, Action<float[], int, int>> makeSink)
+    {
+        Stop();
+        if (!PaEngine.Init()) return PaEngine.LastError;
+        if (dev.MaxOut < 2) return Ui.Tt("Izbrana naprava nima stereo izhoda (potreben za generator sweepa).", "The selected device has no stereo output (needed for the sweep generator).");
+        int count = Math.Min(2, dev.MaxIn);
+        if (inFirst < 0 || inFirst + count > dev.MaxIn) inFirst = 0;
+        if (outFirst < 0 || outFirst + 2 > dev.MaxOut) outFirst = 0;
+        int openIn = inFirst + count, openOut = outFirst + 2;
+        string last = "";
+        int[] rates = AppSettings.SampleRate > 0 ? new[] { AppSettings.SampleRate }
+                    : new[] { 192000, 96000, 48000, Math.Max(8000, (int)Math.Round(dev.DefaultRate)) };
+        foreach (int rate in rates)
+        {
+            try
+            {
+                var info = PortAudio.GetDeviceInfo(dev.Index);
+                var inp = new StreamParameters { device = dev.Index, channelCount = openIn, sampleFormat = SampleFormat.Float32, suggestedLatency = info.defaultLowInputLatency, hostApiSpecificStreamInfo = IntPtr.Zero };
+                var outp = new StreamParameters { device = dev.Index, channelCount = openOut, sampleFormat = SampleFormat.Float32, suggestedLatency = info.defaultLowOutputLatency, hostApiSpecificStreamInfo = IntPtr.Zero };
+                var gen = makeGen(rate);
+                var sink = makeSink(rate, count);
+                int ifirst = inFirst, ofirst = outFirst, cnt = count, oc = openOut, ic = openIn;
+                float[] outTmp = Array.Empty<float>();
+                _cb = (IntPtr input, IntPtr output, uint frames, ref StreamCallbackTimeInfo ti, StreamCallbackFlags flags, IntPtr user) =>
+                {
+                    int n = (int)frames;
+                    if (output != IntPtr.Zero && n > 0)
+                    {
+                        if (outTmp.Length < n * oc) outTmp = new float[n * oc];
+                        gen.Fill(outTmp, n, oc, ofirst);
+                        Marshal.Copy(outTmp, 0, output, n * oc);
+                    }
+                    if (input != IntPtr.Zero && n > 0)
+                    {
+                        int total = n * ic;
+                        if (_tmp.Length < total) _tmp = new float[total];
+                        Marshal.Copy(input, _tmp, 0, total);
+                        var buf = new float[n * cnt];
+                        for (int i = 0; i < n; i++)
+                            for (int k = 0; k < cnt; k++)
+                                buf[i * cnt + k] = _tmp[i * ic + ifirst + k];
+                        sink(buf, n, cnt);
+                    }
+                    return StreamCallbackResult.Continue;
+                };
+                var s = new PortAudioSharp.Stream(inParams: inp, outParams: outp, sampleRate: rate, framesPerBuffer: 0,
+                    streamFlags: StreamFlags.ClipOff, callback: _cb, userData: IntPtr.Zero);
+                s.Start();
+                _stream = s;
+                DeviceName = dev.Name; SampleRate = rate; Channels = cnt;
+                return null;
+            }
+            catch (Exception ex) { last = ex.Message; _stream = null; }
+        }
+        return last;
+    }
+
+    public void Stop()
+    {
+        var s = _stream; _stream = null;
         if (s == null) return;
         try { s.Stop(); } catch { }
         try { s.Close(); } catch { }
